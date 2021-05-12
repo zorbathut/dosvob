@@ -53,7 +53,8 @@ try:
     # Like os.system but with more output
     def execute(cmd):
         print(cmd)
-        os.system(cmd)
+        if os.system(cmd) != 0:
+            raise RuntimeError
 
     # Clean up first, just so we're not stomping all over an old process
     cleanup()
