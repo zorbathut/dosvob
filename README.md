@@ -22,6 +22,15 @@ Volumes are placed in the `backups` directory, named after the volume backed up.
 
 You should probably set it up to run on a schedule. The details of this are left up to you, at least until I make a Dockerfile for it.
 
+### Usage, Docker
+
+* Download the latest version of dosib.
+* Copy `conf.json.example` to `conf.json`.
+* Visit the [DigitalOcean tokens page](https://cloud.digitalocean.com/account/api/tokens) and generate a token.
+* Copy-paste that token into the `do_token` field in `conf.json`.
+* Update the `region` field in `conf.json`.
+* `docker-compose up -d`
+
 ### How It Works
 
 DigitalOcean volumes can only be read while mounted, and can be mounted to only one system at a time. I didn't want to require shutting down your servers and unmounting their volumes, but there's only one way to get data out of a mounted volume: snapshot it. You can't read a snapshot directly, but you can create a volume from it. You also can't read a volume directly, so dosib spins up a small special-purpose droplet (cost as of this writing: approximately 0.7 cents per hour) solely to mount it and transfer data. Once this is done, the droplet, snapshot, and duplicated volume are deleted.
