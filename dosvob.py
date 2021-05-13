@@ -5,37 +5,37 @@ import os
 import pathlib
 import time
 
-dosib_ephemeral_tag = "dosib-ephemeral"
-has_dosib_ephemeral_tag = lambda item: dosib_ephemeral_tag in item["tags"]
+dosvob_ephemeral_tag = "dosvob-ephemeral"
+has_dosvob_ephemeral_tag = lambda item: dosvob_ephemeral_tag in item["tags"]
 conf = json.loads(pathlib.Path("conf.json").read_text())
 token = conf["do_token"]
 region = conf["region"]
 
-dosib_key_name = "dosib-ephemeral-key"
+dosvob_key_name = f"{dosvob_ephemeral_tag}-key"
 
 # Setup
 manager = api.BaseAPI(token = token)
 pathlib.Path('backups').mkdir(parents=True, exist_ok=True)
 
-# Cleans up everything related to dosib's execution
+# Cleans up everything related to dosvob's execution
 def cleanup():
     # Clear droplets first because they might mount volumes
-    for droplet in manager.request("droplets", "GET", { 'tag_name': dosib_ephemeral_tag })["droplets"]:
+    for droplet in manager.request("droplets", "GET", { 'tag_name': dosvob_ephemeral_tag })["droplets"]:
         manager.request(f"droplets/{droplet['id']}", "DELETE")
 
     # Clear snapshots next to give volumes time to demount properly (this may or may not be helpful; if it is, solve it better)
-    for snapshot in filter(has_dosib_ephemeral_tag, manager.request("snapshots", "GET")["snapshots"]):
+    for snapshot in filter(has_dosvob_ephemeral_tag, manager.request("snapshots", "GET")["snapshots"]):
         manager.request(f"snapshots/{snapshot['id']}", "DELETE")
 
     # Clear volumes once the droplet is probably shut down
     # For some reason, tagging volumes doesn't seem to work right, so we do it with name prefixes instead
-    for volume in filter(lambda item: item["name"].startswith(dosib_ephemeral_tag), manager.request("volumes", "GET")["volumes"]):
+    for volume in filter(lambda item: item["name"].startswith(dosvob_ephemeral_tag), manager.request("volumes", "GET")["volumes"]):
         manager.request(f"volumes/{volume['id']}", "DELETE")
     
     # Clear SSH keys that we inserted
     actionresult = manager.request(f"account/keys", "GET")
     for key in actionresult["ssh_keys"]:
-        if key["name"] == dosib_key_name:
+        if key["name"] == dosvob_key_name:
             manager.request(f"account/keys/{key['id']}", "DELETE")
 
 try:
@@ -61,17 +61,17 @@ try:
 
     # Insert our SSH key
     sshkeyid = manager.request(f"account/keys", "POST", {
-            'name': dosib_key_name,
+            'name': dosvob_key_name,
             'public_key': pathlib.Path("~/.ssh/id_rsa.pub").expanduser().read_text(),
         })["ssh_key"]["id"]
 
     # Build the droplet that we'll be using for rsync
     workerresponse = manager.request("droplets", "POST", {
-            'name': f'{dosib_ephemeral_tag}-worker',
+            'name': f'{dosvob_ephemeral_tag}-worker',
             'region': region,
             'image': 'debian-10-x64',
             'size': 's-1vcpu-1gb',
-            'tags': [ dosib_ephemeral_tag ],
+            'tags': [ dosvob_ephemeral_tag ],
             'ssh_keys': [ sshkeyid ],
         })
     workerid = workerresponse["droplet"]["id"]
@@ -94,10 +94,10 @@ try:
     for volume in volumes:
         # Snapshot a volume
         # Volume name length limited to 64 so we unfortunately have to limit our embedded name
-        name = f"dosib-ephemeral--{volume['name'][:12]}--{snapshotslug}"
+        name = f"dosvob-ephemeral--{volume['name'][:12]}--{snapshotslug}"
         result = manager.request(f"volumes/{volume['id']}/snapshots", "POST", {
                 'name': name,
-                'tags': [ dosib_ephemeral_tag ],
+                'tags': [ dosvob_ephemeral_tag ],
             })["snapshot"]
         
         # Make a volume from our snapshot
@@ -106,7 +106,7 @@ try:
                 'name': name,
                 'size_gigabytes': result["min_disk_size"],
                 'snapshot_id': snapshotid,
-                'tags': [ dosib_ephemeral_tag ],
+                'tags': [ dosvob_ephemeral_tag ],
             })["volume"]
         volumecopyid = volumecopy["id"]
         

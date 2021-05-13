@@ -8,6 +8,6 @@ WORKDIR /app
 
 RUN pipenv install --system
 
-COPY dockertools/dosib /etc/periodic/daily/dosib
+COPY dockertools/dosvob /etc/periodic/daily/dosvob
 
 CMD ["dockertools/run.sh"]

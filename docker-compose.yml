@@ -1,8 +1,8 @@
-dosib:
+dosvob:
     build: .
     restart: always
     volumes:
-       - "dosib:/app/backups"
+       - "dosvob:/app/backups"
     log_opt:
       max-size: "50m"
       max-file: "5"
