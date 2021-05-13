@@ -1,7 +1,7 @@
 dosvob
 ---
 
-dosvob is a quick-and-dirty DigitalOcean image backup system. It is intended for people trying to back up relatively small amounts of high-speed online storage onto a local cheaper-per-gigabyte storage system, likely using hard drives.
+dosvob is a quick-and-dirty DigitalOcean volume backup system. It is intended for people trying to back up relatively small amounts of high-speed online storage onto a local cheaper-per-gigabyte storage system, likely using hard drives.
 
 If you have a million-dollar company that relies on dozens of terabytes of data, you should probably not use dosvob. If you have a small side project where it would be really annoying to lose a few dozen gigabytes, dosvob might be a good choice.
 
@@ -20,7 +20,7 @@ Wait. A sync takes about a minute of setup, plus maybe fifteen seconds of furthe
 
 Volumes are placed in the `backups` directory, named after the volume backed up. If you want to keep multiple revisions, that is currently up to you. Personally, I recommend storing the directory on ZFS and using snapshots.
 
-You should probably set it up to run on a schedule. The details of this are left up to you, at least until I make a Dockerfile for it.
+You should probably set it up to run on a schedule. The details of this are left up to you, unless you want to use the Docker version.
 
 ### Usage, Docker
 
@@ -41,7 +41,7 @@ Technically this costs money, but given how quickly the whole process finishes, 
 
 dosvob was written for my own purposes and currently contains the minimum required featureset for what I needed. Pull requests accepted graciously; feature-request issues may be handled based on how cheerful I'm feeling and how annoying it is. (Bribes accepted very graciously! But seriously, the code's documented, it'd probably be cheaper to do it yourself.)
 
-dosvob creates snapshots, volumes, and a single droplet, all of which cost money. It cleans all of this up at the end, but if that's buggy, or gets interrupted by an Internet outage, power outage, or process termination, then it may keep costing you money until you notice. This is officially not my responsibility. It'll clean up old runs automatically on startup, but that of course won't refund your money. In theory, the worst-case scenario is a copy of your single largest volume, plus $5/mo for the droplet, but maybe something goes really wrong, I don't know.
+dosvob creates snapshots, volumes, and a single droplet, all of which cost money. It cleans all of this up at the end, but if that's buggy, or gets interrupted by an Internet outage, power outage, or process termination, then it may keep costing you money until you notice. This is officially not my responsibility. It'll clean up old runs automatically on startup, but that of course won't refund your money. In theory, the worst-case scenario is a copy of your single largest volume, plus a snapshot of the same volume, plus $5/mo for the droplet, but maybe something goes really wrong, I don't know.
 
 dosvob will automatically delete things that have the `dosvob-ephemeral` tag or are prefixed with `dosvob-ephemeral`. If you have anything like that in your account, you probably shouldn't use this. Also, that's a *really* weird coincidence, seriously, man.
 
@@ -57,6 +57,6 @@ dosvob doesn't keep multiple versions in any useful way; that's currently left u
 
 I give no guarantee that the disk format is stable. If you blindly sync a new version, it may have an entire new disk format that it starts from scratch without warning you. It won't clobber old data without warning (this *is* a guarantee!)
 
-dosvob (intentionally!) does not shut down droplets before snapshotting volumes. This means your backup may be in an inconsistent state, roughly equivalent to what you'd get if you hard-shutdown a droplet instead of shutting it down gracefully. This is a thing you're not supposed to do and may result in a nonworking backup. In my experience, it works surprisingly often (I've never had a failure, in fact!), and also I'm pretty lazy and don't want to try figuring out a more reliable solution. Also, I run low-load servers without anything critical on them. I recommend keeping several recent versions, which will sharply mitigate the chance of not having a working backup; I also recommend testing your backups.
+dosvob (intentionally!) does not shut down droplets before snapshotting volumes. This means your backup may be in an inconsistent state, roughly equivalent to what you'd get if you hard-shutdown a droplet instead of shutting it down gracefully. This is a thing you're not supposed to do and may result in a nonworking backup. In my experience, it works surprisingly often (I've never had a failure, in fact!), and also I'm pretty lazy and don't want to try figuring out a more reliable solution. Also, I run low-load servers without anything critical on them, so take that with a grain of salt. I recommend keeping several recent versions, which will sharply mitigate the chance of not having a working backup; I also recommend testing your backups.
 
 **This program was written by one dude over the course of one night when he should have been going to bed and one morning when he hadn't really gotten enough sleep and was scrambling to get it done before he had to get to work. There is no warranty. There are no guarantees. If it deletes all of your data, I'll shrug and say "sorry", and also kind of silently judge you behind my monitor. If you are using this for anything of importance, you should audit the code, test the backups, and continue to verify them regularly. To quote the end of the license: THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.**
