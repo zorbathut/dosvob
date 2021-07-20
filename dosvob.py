@@ -142,7 +142,9 @@ try:
         
         # Delete volume
         manager.request(f"volumes/{volumecopyid}", "DELETE")
-
+except:
+    print("Error! Cleaning up before returning.")
+    raise
 finally:
     # Cleanup everything remaining
     cleanup()
