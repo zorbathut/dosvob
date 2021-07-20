@@ -29,7 +29,7 @@ You should probably set it up to run on a schedule. The details of this are left
 * Visit the [DigitalOcean tokens page](https://cloud.digitalocean.com/account/api/tokens) and generate a token.
 * Copy-paste that token into the `do_token` field in `conf.json`.
 * Update the `region` field in `conf.json`.
-* `docker-compose up -d`
+* `docker-compose up -d --build`
 
 ### How It Works
 
