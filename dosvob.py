@@ -83,7 +83,7 @@ try:
     workeriplist = manager.request(f"droplets/{workerid}", "GET")["droplet"]["networks"]["v4"]
     workerip = next(x for x in workeriplist if x["type"] == "public")["ip_address"]
     print(f"Worker found at IP {workerip}")
-    
+
     # Install rsync; this also accepts our ssh key
     # we actually need to retry every second until we succeed because it now takes a bit for the server to come up
     while True:
@@ -135,7 +135,8 @@ try:
         # All my images are small, so I'm literally just copying the block device to disk so I can use rsync.
         # This is terrible and unnecessarily slow.
         execute(f"ssh root@{workerip} cp /dev/sda sourceimage")
-        execute(f"rsync --progress root@{workerip}:sourceimage backups/{volume['name']}")
+        # enable rsync compression because it makes things run *much much much faster*
+        execute(f"rsync --progress -z root@{workerip}:sourceimage backups/{volume['name']}")
 
         # Clean up image on worker
         execute(f"ssh root@{workerip} rm sourceimage")
