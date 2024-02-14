@@ -98,14 +98,17 @@ try:
     workerip = next(x for x in workeriplist if x["type"] == "public")["ip_address"]
     print(f"Worker found at IP {workerip}")
 
-    # Install rsync; this also accepts our ssh key
+    # Install go, which we need for diskrsync; this also accepts our ssh key
     # we actually need to retry every second until we succeed because it now takes a bit for the server to come up
     while True:
         try:
-            execute(f"ssh -o StrictHostKeyChecking=no root@{workerip} apt install rsync")
+            execute(f"ssh -o StrictHostKeyChecking=no root@{workerip} apt install -y golang")
             break
         except:
             time.sleep(1)
+    
+    # And now get diskrsync copied over
+    execute(f"scp /usr/local/bin/diskrsync root@{workerip}:/usr/local/bin/diskrsync")
 
     snapshotslug = datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S")
 
@@ -139,22 +142,8 @@ try:
                 'droplet_id': workerid,
             })["action"]["id"])
         
-        # Volume always shows up as sda, so let's copy it
-        # What tool we do use? Good question!
-        # rsync isn't willing to read block devices (why? you literally have to do extra work to make this not function!)
-        # bscp seems suitable . . . but it's unidirectional, local->remote, which is the exact opposite of what we want.
-        # shasplit would be pretty sweet, but it doesn't do sensible remote transfer.
-        # zbackup seems reasonable, but it requires zfs on the remote, and backs up from file systems.
-        # I could hack up something shasplit'y myself, but right now I just don't care enough.
-        # All my images are small, so I'm literally just copying the block device to disk so I can use rsync.
-        # This is terrible and unnecessarily slow.
-        # diskrsync?
-        execute(f"ssh root@{workerip} cp /dev/sda sourceimage")
-        # enable rsync compression because it makes things run *much much much faster*
-        execute(f"rsync --progress -z --inplace --no-whole-file root@{workerip}:sourceimage backups/{volume['name']}")
-
-        # Clean up image on worker
-        execute(f"ssh root@{workerip} rm sourceimage")
+        # Volume always shows up as sda, so let's sync it over
+        execute(f"diskrsync --verbose --calc-progress --sync-progress --no-compress root@{workerip}:/dev/sda backups/{volume['name']}")
 
         # Detach volume
         waitfor(manager.request(f"volumes/{volumecopyid}/actions", "POST", {

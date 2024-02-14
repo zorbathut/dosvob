@@ -1,7 +1,10 @@
 FROM python:3.11 AS base
 
+# enable packports
+RUN echo 'deb http://deb.debian.org/debian bullseye-backports main contrib non-free' >> /etc/apt/sources.list
+
 RUN apt update
-RUN apt install -y rsync git cron
+RUN apt install -y git cron golang-1.16
 RUN pip install pipenv
 
 # install xethub
@@ -12,6 +15,15 @@ RUN \
     mv git-xet /usr/local/bin && \
     chmod +x /usr/local/bin/git-xet && \
     git xet install
+
+# install diskrsync
+RUN \
+    mkdir workspace && \
+    cd workspace && \
+    GOPATH=$(pwd) /usr/lib/go-1.16/bin/go install github.com/dop251/diskrsync/diskrsync@latest && \
+    cp -a bin/diskrsync /usr/local/bin && \
+    cd .. && \
+    rm -rf workspace
 
 COPY . /app
 WORKDIR /app
