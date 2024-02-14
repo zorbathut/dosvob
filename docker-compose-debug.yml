@@ -3,8 +3,8 @@ services:
   dosvob:
     build:
       context: .
-      target: cron
-    restart: always
+      target: debug
+    restart: no
     volumes:
       - "dosvob:/app/backups"
     logging:

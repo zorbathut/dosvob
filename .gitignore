@@ -1,3 +1,4 @@
 .vscode
 backups
 conf.json
+*.pyc
