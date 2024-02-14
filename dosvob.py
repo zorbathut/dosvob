@@ -3,6 +3,7 @@ import datetime
 import json
 import os
 import pathlib
+import requests
 import time
 
 # Like os.system but with more output
@@ -19,9 +20,13 @@ region = conf["region"]
 
 dosvob_key_name = f"{dosvob_ephemeral_tag}-key"
 
+# Healthchecks
+if conf["healthchecks"] != "":
+    requests.get(f"{conf['healthchecks']}/start", timeout=10)
+
 # Setup
 manager = api.BaseAPI(token = token)
-if (conf["xethub"] == "True"):
+if conf["xethub"] == "True":
     execute(f"git config --global user.name '{conf['xethub_username']}'")
     execute(f"git config --global user.email '{conf['xethub_email']}'")
     execute(f"ssh-keyscan xethub.com >> ~/.ssh/known_hosts")
@@ -166,8 +171,13 @@ try:
         execute("git -C backups commit -m 'dosvob backup'")
         execute("git -C backups push")
 
+    if conf["healthchecks"] != "":
+        requests.get(f"{conf['healthchecks']}", timeout=10)
+
 except:
     print("Error! Cleaning up before returning.")
+    if conf["healthchecks"] != "":
+        requests.get(f"{conf['healthchecks']}/fail", timeout=10)
     raise
 finally:
     # Cleanup everything remaining

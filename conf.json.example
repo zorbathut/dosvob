@@ -5,5 +5,7 @@
     "xethub": "False",
     "xethub_username": "mrbackup",
     "xethub_email": "mrbackup@example.com",
-    "xethub_repo": "xet@xethub.com:mrbackup/dosvob.git"
+    "xethub_repo": "xet@xethub.com:mrbackup/dosvob.git",
+
+    "healthchecks": "https://hc-ping.com/yabba-dabba-doo-leave-me-blank-for-nothing"
 }
