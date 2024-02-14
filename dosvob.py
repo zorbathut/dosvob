@@ -5,6 +5,12 @@ import os
 import pathlib
 import time
 
+# Like os.system but with more output
+def execute(cmd):
+    print(cmd)
+    if os.system(cmd) != 0:
+        raise RuntimeError
+    
 dosvob_ephemeral_tag = "dosvob-ephemeral"
 has_dosvob_ephemeral_tag = lambda item: dosvob_ephemeral_tag in item["tags"]
 conf = json.loads(pathlib.Path("conf.json").read_text())
@@ -15,7 +21,16 @@ dosvob_key_name = f"{dosvob_ephemeral_tag}-key"
 
 # Setup
 manager = api.BaseAPI(token = token)
-pathlib.Path('backups').mkdir(parents=True, exist_ok=True)
+if (conf["xethub"] == "True"):
+    execute(f"git config --global user.name '{conf['xethub_username']}'")
+    execute(f"git config --global user.email '{conf['xethub_email']}'")
+    execute(f"ssh-keyscan xethub.com >> ~/.ssh/known_hosts")
+
+    # check to see if the git repo in backups exists
+    if not os.path.exists("backups/.git"):
+        execute(f"git xet clone {conf['xethub_repo']} backups")
+else:
+    pathlib.Path('backups').mkdir(parents=True, exist_ok=True)
 
 # Cleans up everything related to dosvob's execution
 def cleanup():
@@ -49,12 +64,6 @@ try:
                 time.sleep(5)
             else:
                 raise RuntimeError
-    
-    # Like os.system but with more output
-    def execute(cmd):
-        print(cmd)
-        if os.system(cmd) != 0:
-            raise RuntimeError
 
     # Clean up first, just so we're not stomping all over an old process
     cleanup()
@@ -134,9 +143,10 @@ try:
         # I could hack up something shasplit'y myself, but right now I just don't care enough.
         # All my images are small, so I'm literally just copying the block device to disk so I can use rsync.
         # This is terrible and unnecessarily slow.
+        # diskrsync?
         execute(f"ssh root@{workerip} cp /dev/sda sourceimage")
         # enable rsync compression because it makes things run *much much much faster*
-        execute(f"rsync --progress -z root@{workerip}:sourceimage backups/{volume['name']}")
+        execute(f"rsync --progress -z --inplace --no-whole-file root@{workerip}:sourceimage backups/{volume['name']}")
 
         # Clean up image on worker
         execute(f"ssh root@{workerip} rm sourceimage")
@@ -149,6 +159,13 @@ try:
         
         # Delete volume
         manager.request(f"volumes/{volumecopyid}", "DELETE")
+
+    if (conf["xethub"] == "True"):
+        # Commit and push to xethub
+        execute("git -C backups add .")
+        execute("git -C backups commit -m 'dosvob backup'")
+        execute("git -C backups push")
+
 except:
     print("Error! Cleaning up before returning.")
     raise

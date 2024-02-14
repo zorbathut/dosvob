@@ -1,2 +1,4 @@
 #!/bin/sh
-ssh-keygen -f ~/.ssh/id_rsa
+if [ ! -f ~/.ssh/id_rsa ]; then
+    ssh-keygen -f ~/.ssh/id_rsa
+fi

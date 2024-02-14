@@ -16,6 +16,9 @@ RUN \
 COPY . /app
 WORKDIR /app
 
+# copy ssh key from current directory if it exists
+COPY id_rsa* /root/.ssh/
+
 RUN pipenv install --system
 RUN chmod +x /app/dockertools/*
 

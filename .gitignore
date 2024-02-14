@@ -2,3 +2,4 @@
 backups
 conf.json
 *.pyc
+id_rsa*
