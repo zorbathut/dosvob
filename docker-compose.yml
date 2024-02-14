@@ -6,7 +6,7 @@ services:
       target: cron
     restart: always
     volumes:
-      - "dosvob:/app/backups"
+      - "./backups:/app/backups"
     logging:
       driver: json-file
       options:

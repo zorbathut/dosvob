@@ -6,7 +6,7 @@ services:
       target: debug
     restart: no
     volumes:
-      - "dosvob:/app/backups"
+      - "./backups:/app/backups"
     logging:
       driver: json-file
       options:
