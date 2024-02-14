@@ -83,9 +83,15 @@ try:
     workeriplist = manager.request(f"droplets/{workerid}", "GET")["droplet"]["networks"]["v4"]
     workerip = next(x for x in workeriplist if x["type"] == "public")["ip_address"]
     print(f"Worker found at IP {workerip}")
-
+    
     # Install rsync; this also accepts our ssh key
-    execute(f"ssh -o StrictHostKeyChecking=no root@{workerip} apt install rsync")
+    # we actually need to retry every second until we succeed because it now takes a bit for the server to come up
+    while True:
+        try:
+            execute(f"ssh -o StrictHostKeyChecking=no root@{workerip} apt install rsync")
+            break
+        except:
+            time.sleep(1)
 
     snapshotslug = datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S")
 
