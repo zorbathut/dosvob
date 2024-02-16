@@ -34,6 +34,9 @@ if conf["xethub"] == "True":
     # check to see if the git repo in backups exists
     if not os.path.exists("backups/.git"):
         execute(f"git xet clone {conf['xethub_repo']} backups")
+    else:
+        execute("git -C backups fetch")
+        execute("git -C backups reset --hard origin/main")
 else:
     pathlib.Path('backups').mkdir(parents=True, exist_ok=True)
 
