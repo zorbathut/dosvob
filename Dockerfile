@@ -4,17 +4,8 @@ FROM python:3.11 AS base
 RUN echo 'deb http://deb.debian.org/debian bullseye-backports main contrib non-free' >> /etc/apt/sources.list
 
 RUN apt update
-RUN apt install -y git cron golang-1.16
+RUN apt install -y git
 RUN pip install pipenv
-
-# install xethub
-RUN \
-    wget https://github.com/xetdata/xet-tools/releases/latest/download/xet-linux-x86_64.tar.gz && \
-    tar -xvf xet-linux-x86_64.tar.gz && \
-    rm xet-linux-x86_64.tar.gz && \
-    mv git-xet /usr/local/bin && \
-    chmod +x /usr/local/bin/git-xet && \
-    git xet install
 
 # install diskrsync
 RUN \

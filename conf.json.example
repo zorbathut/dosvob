@@ -2,10 +2,5 @@
     "do_token": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
     "region": "nyc1",
 
-    "xethub": "False",
-    "xethub_username": "mrbackup",
-    "xethub_email": "mrbackup@example.com",
-    "xethub_repo": "xet@xethub.com:mrbackup/dosvob.git",
-
     "healthchecks": "https://hc-ping.com/yabba-dabba-doo-leave-me-blank-for-nothing"
 }

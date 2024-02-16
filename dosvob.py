@@ -26,19 +26,9 @@ if conf["healthchecks"] != "":
 
 # Setup
 manager = api.BaseAPI(token = token)
-if conf["xethub"] == "True":
-    execute(f"git config --global user.name '{conf['xethub_username']}'")
-    execute(f"git config --global user.email '{conf['xethub_email']}'")
-    execute(f"ssh-keyscan xethub.com >> ~/.ssh/known_hosts")
-
-    # check to see if the git repo in backups exists
-    if not os.path.exists("backups/.git"):
-        execute(f"git xet clone {conf['xethub_repo']} backups")
-    else:
-        execute("git -C backups fetch")
-        execute("git -C backups reset --hard origin/main")
-else:
-    pathlib.Path('backups').mkdir(parents=True, exist_ok=True)
+pathlib.Path('backups/glacier/history').mkdir(parents=True, exist_ok=True)
+if not os.path.exists("backups/glacier/history/.git"):
+    execute("git -C backups/glacier/history init")
 
 # Cleans up everything related to dosvob's execution
 def cleanup():
@@ -156,12 +146,6 @@ try:
         
         # Delete volume
         manager.request(f"volumes/{volumecopyid}", "DELETE")
-
-    if (conf["xethub"] == "True"):
-        # Commit and push to xethub
-        execute("git -C backups add .")
-        execute("git -C backups commit -m 'dosvob backup'")
-        execute("git -C backups push")
 
     if conf["healthchecks"] != "":
         requests.get(f"{conf['healthchecks']}", timeout=10)

@@ -37,10 +37,6 @@ DigitalOcean volumes can only be read while mounted, and can be mounted to only 
 
 Technically this costs money, but given how quickly the whole process finishes, it doesn't cost a significant amount.
 
-### Xethub Support
-
-dosvob now has experimental xethub support. You'll need to put an `id_rsa` file in the directory when building the Docker file. Yes, it currently works only with Docker, sorry, I know that's weird.
-
 ### Caveats
 
 dosvob was written for my own purposes and currently contains the minimum required featureset for what I needed. Pull requests accepted graciously; feature-request issues may be handled based on how cheerful I'm feeling and how annoying it is. (Bribes accepted very graciously! But seriously, the code's documented, it'd probably be cheaper to do it yourself.)
