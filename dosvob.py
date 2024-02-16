@@ -6,11 +6,8 @@ import pathlib
 import requests
 import time
 
-# Like os.system but with more output
-def execute(cmd):
-    print(cmd)
-    if os.system(cmd) != 0:
-        raise RuntimeError
+from glacier import do_glacier_pass
+from util import execute
     
 dosvob_ephemeral_tag = "dosvob-ephemeral"
 has_dosvob_ephemeral_tag = lambda item: dosvob_ephemeral_tag in item["tags"]
@@ -146,6 +143,8 @@ try:
         
         # Delete volume
         manager.request(f"volumes/{volumecopyid}", "DELETE")
+
+    do_glacier_pass("backups", conf["snapshot_retention"])
 
     if conf["healthchecks"] != "":
         requests.get(f"{conf['healthchecks']}", timeout=10)

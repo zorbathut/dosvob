@@ -4,8 +4,11 @@ FROM python:3.11 AS base
 RUN echo 'deb http://deb.debian.org/debian bullseye-backports main contrib non-free' >> /etc/apt/sources.list
 
 RUN apt update
-RUN apt install -y git
+RUN apt install -y git git-filter-repo golang-1.16 
 RUN pip install pipenv
+
+RUN git config --global user.name dosvob
+RUN git config --global user.email dosvob
 
 # install diskrsync
 RUN \
