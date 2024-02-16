@@ -7,5 +7,5 @@ cd ..
 while true; do
   # Execute your script
   PYTHONUNBUFFERED=1 python dosvob.py
-  sleep 24h
+  sleep 4h
 done

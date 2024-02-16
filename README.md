@@ -45,13 +45,15 @@ dosvob creates snapshots, volumes, and a single droplet, all of which cost money
 
 dosvob will automatically delete things that have the `dosvob-ephemeral` tag or are prefixed with `dosvob-ephemeral`. If you have anything like that in your account, you probably shouldn't use this. Also, that's a *really* weird coincidence, seriously, man.
 
+dosvob *definitely* does not want to be run twice in parallel - it will step on its own feet very badly. It won't corrupt your data, it just won't result in a usable backup.
+
 dosvob currently handles only a single region. This is entirely fixable, I just don't care right now because all my stuff is in a single region. I'd be happy to fix it if you need it fixed.
 
 dosvob currently backs up all your volumes. There is no way to specify that a volume shouldn't be backed up.
 
 dosvob doesn't back up droplets. I actually don't know if this is solvable. (Maybe?) Importantly, I don't need it, so I haven't looked into it.
 
-dosvob does not deal well with volumes above 20gb. This is due to some limitations of rsync and an ugly workaround that I used due to being lazy. There's ways to fix this, I just haven't bothered. Let me know if this is a problem for you. A few months from now, I guarantee I'm going to forget about this, make a large volume, fail to back it up, and feel like an idiot, then have to fix it myself.
+dosvob's cron mode is hardcoded to run every 4 hours, because that's what I need right now. This should totally be a config option. It's not.
 
 dosvob doesn't keep multiple versions in any useful way; that's currently left up to whoever is running it.
 
