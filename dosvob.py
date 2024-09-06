@@ -73,7 +73,7 @@ try:
     workerresponse = manager.request("droplets", "POST", {
             'name': f'{dosvob_ephemeral_tag}-worker',
             'region': region,
-            'image': 'debian-10-x64',
+            'image': 'debian-12-x64',
             'size': 's-1vcpu-1gb',
             'tags': [ dosvob_ephemeral_tag ],
             'ssh_keys': [ sshkeyid ],
